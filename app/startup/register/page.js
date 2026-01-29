@@ -48,12 +48,12 @@ export default function StartupRegister() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#f7f7f7] flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Register as Startup</h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-[#293241]">Register as Startup</h1>
 
         {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>
+          <div className="bg-red-50 text-[#9e2a2b] p-3 rounded mb-4">{error}</div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -62,14 +62,14 @@ export default function StartupRegister() {
             type="text"
             placeholder="Founder Name"
             required
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#335c67]"
           />
           <input
             name="email"
             type="email"
             placeholder="Email"
             required
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#335c67]"
           />
           <input
             name="password"
@@ -77,39 +77,39 @@ export default function StartupRegister() {
             placeholder="Password"
             required
             minLength={6}
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#335c67]"
           />
           <input
             name="startupName"
             type="text"
             placeholder="Startup Name"
             required
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#335c67]"
           />
           <input
             name="tagline"
             type="text"
             placeholder="Tagline"
             required
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#335c67]"
           />
           <textarea
             name="problem"
             placeholder="Problem you're solving"
             required
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#335c67]"
           />
           <textarea
             name="solution"
             placeholder="Your solution"
             required
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#335c67]"
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 disabled:opacity-50"
+            className="w-full bg-[#9e2a2b] text-white p-3 rounded hover:bg-[#7d2122] disabled:opacity-50"
           >
             {loading ? "Registering..." : "Register"}
           </button>
@@ -117,7 +117,7 @@ export default function StartupRegister() {
 
         <p className="text-center mt-4 text-gray-600">
           Already have an account?{" "}
-          <Link href="/startup/login" className="text-blue-600 hover:underline">
+          <Link href="/startup/login" className="text-[#335c67] hover:underline">
             Login
           </Link>
         </p>

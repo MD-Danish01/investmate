@@ -41,6 +41,9 @@ export default function StartupDashboard() {
         funding: profile.funding || "",
         fundUsage: profile.fundUsage || "",
         prevFunding: profile.prevFunding || "No",
+        linkedinUrl: profile.socialLinks?.linkedin || "",
+        twitterUrl: profile.socialLinks?.twitter || "",
+        otherUrl: profile.socialLinks?.other || "",
       });
     }
   }, [profile]);
@@ -104,10 +107,21 @@ export default function StartupDashboard() {
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
+      // Prepare data with social links as nested object
+      const { linkedinUrl, twitterUrl, otherUrl, ...rest } = formData;
+      const dataToSave = {
+        ...rest,
+        socialLinks: {
+          linkedin: linkedinUrl,
+          twitter: twitterUrl,
+          other: otherUrl,
+        },
+      };
+
       const res = await fetch("/api/startup/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSave),
       });
 
       if (res.ok) {
@@ -380,6 +394,42 @@ export default function StartupDashboard() {
                 rows={2}
                 className="p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 lg:col-span-3"
               />
+
+              {/* Social Media Links */}
+              <div className="lg:col-span-3 mt-4">
+                <h3 className="font-medium text-gray-700 mb-3 border-b pb-2">🔗 Social Media Links</h3>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-blue-600">🔗</span>
+                <input
+                  name="linkedinUrl"
+                  value={formData.linkedinUrl}
+                  onChange={handleInputChange}
+                  placeholder="LinkedIn URL"
+                  className="flex-1 p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-blue-400">🐦</span>
+                <input
+                  name="twitterUrl"
+                  value={formData.twitterUrl}
+                  onChange={handleInputChange}
+                  placeholder="Twitter/X URL"
+                  className="flex-1 p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">🌐</span>
+                <input
+                  name="otherUrl"
+                  value={formData.otherUrl}
+                  onChange={handleInputChange}
+                  placeholder="Other URL (ProductHunt, etc.)"
+                  className="flex-1 p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
 
             <div className="mt-6 flex gap-4">
@@ -426,6 +476,27 @@ export default function StartupDashboard() {
                 <p><strong>Website:</strong> {profile?.website || <span className="text-orange-500">Not set</span>}</p>
                 <p><strong>Team Size:</strong> {profile?.teamSize || <span className="text-orange-500">Not set</span>}</p>
                 <p><strong>Funding Goal:</strong> {profile?.funding || <span className="text-orange-500">Not set</span>}</p>
+              </div>
+              {/* Social Links */}
+              <div className="border-t pt-3">
+                <p className="font-medium text-gray-700 mb-2">Social Links:</p>
+                <div className="flex gap-3">
+                  {profile?.socialLinks?.linkedin ? (
+                    <a href={profile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+                      LinkedIn
+                    </a>
+                  ) : <span className="text-orange-500 text-sm">LinkedIn not set</span>}
+                  {profile?.socialLinks?.twitter ? (
+                    <a href={profile.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-600">
+                      Twitter
+                    </a>
+                  ) : <span className="text-orange-500 text-sm">Twitter not set</span>}
+                  {profile?.socialLinks?.other && (
+                    <a href={profile.socialLinks.other} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-800">
+                      Other
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </div>
