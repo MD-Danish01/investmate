@@ -72,6 +72,10 @@ export async function GET(request) {
       const Startup = (await import("@/models/Startup")).default;
       const startup = await Startup.findOne({ userId: decoded.userId }).select('_id').lean();
       
+      if (!startup) {
+        return NextResponse.json({ error: "Startup profile not found" }, { status: 404 });
+      }
+      
       connections = await Connection.find({ startupId: startup._id })
         .populate({
           path: "investorId",
@@ -83,6 +87,10 @@ export async function GET(request) {
     } else {
       // Investor sees their sent requests
       const investor = await Investor.findOne({ userId: decoded.userId }).select('_id').lean();
+      
+      if (!investor) {
+        return NextResponse.json({ error: "Investor profile not found" }, { status: 404 });
+      }
       
       connections = await Connection.find({ investorId: investor._id })
         .populate({

@@ -40,7 +40,10 @@ export async function GET(request) {
       .sort({ createdAt: -1 })
       .lean();
 
-    return NextResponse.json(startups);
+    // Filter out any startups where userId population failed (orphaned records)
+    const validStartups = startups.filter(s => s.userId !== null);
+
+    return NextResponse.json(validStartups);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
