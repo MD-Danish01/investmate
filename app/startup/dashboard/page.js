@@ -16,6 +16,13 @@ export default function StartupDashboard() {
   const [formData, setFormData] = useState({});
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  // AI Features State
+  const [aiMatching, setAiMatching] = useState(false);
+  const [aiCoaching, setAiCoaching] = useState(false);
+  const [aiMatches, setAiMatches] = useState(null);
+  const [aiCoachResult, setAiCoachResult] = useState(null);
+  const [showAiMatchModal, setShowAiMatchModal] = useState(false);
+  const [showAiCoachModal, setShowAiCoachModal] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -228,6 +235,51 @@ export default function StartupDashboard() {
   // Check if profile is incomplete
   const isProfileIncomplete = !profile?.location || !profile?.phone || !profile?.industry;
 
+  // AI Features Functions
+  const handleAiMatching = async () => {
+    setAiMatching(true);
+    setAiMatches(null);
+    try {
+      const res = await fetch("/api/ai/matchmaking/startup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAiMatches(data.matches);
+        setShowAiMatchModal(true);
+      } else {
+        alert(data.error || "AI matching failed");
+      }
+    } catch (error) {
+      alert("Error connecting to AI service");
+    } finally {
+      setAiMatching(false);
+    }
+  };
+
+  const handleAiCoaching = async () => {
+    setAiCoaching(true);
+    setAiCoachResult(null);
+    try {
+      const res = await fetch("/api/ai/coach/startup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAiCoachResult(data.coaching);
+        setShowAiCoachModal(true);
+      } else {
+        alert(data.error || "AI coaching failed");
+      }
+    } catch (error) {
+      alert("Error connecting to AI service");
+    } finally {
+      setAiCoaching(false);
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -254,6 +306,50 @@ export default function StartupDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* AI Features Section */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-2xl shadow-lg mb-8 text-white">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <span className="text-3xl">🤖</span> AI-Powered Features
+              </h2>
+              <p className="text-blue-100 mt-1">Let AI help you find investors and get strategic advice for your startup</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleAiMatching}
+                disabled={aiMatching}
+                className="px-6 py-3 bg-white text-blue-700 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg disabled:opacity-50 flex items-center gap-2"
+              >
+                {aiMatching ? (
+                  <>
+                    <span className="animate-spin">⏳</span> Finding Investors...
+                  </>
+                ) : (
+                  <>
+                    <span>🔍</span> Find Investors
+                  </>
+                )}
+              </button>
+              <button
+                onClick={handleAiCoaching}
+                disabled={aiCoaching}
+                className="px-6 py-3 bg-yellow-400 text-yellow-900 rounded-xl font-semibold hover:bg-yellow-300 transition-all shadow-lg disabled:opacity-50 flex items-center gap-2"
+              >
+                {aiCoaching ? (
+                  <>
+                    <span className="animate-spin">⏳</span> Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <span>💡</span> AI Coach
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Profile Incomplete Warning */}
         {isProfileIncomplete && !editMode && (
           <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg mb-6">
@@ -816,6 +912,235 @@ export default function StartupDashboard() {
           )}
         </div>
       </div>
+
+      {/* AI Match Results Modal */}
+      {showAiMatchModal && aiMatches && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <span>🔍</span> AI-Matched Investors & Partners
+                  </h2>
+                  <p className="text-blue-100 mt-1">Personalized recommendations based on your startup profile</p>
+                </div>
+                <button
+                  onClick={() => setShowAiMatchModal(false)}
+                  className="text-white/80 hover:text-white text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {Array.isArray(aiMatches) && aiMatches.length > 0 ? (
+                aiMatches.map((match, index) => (
+                  <div key={index} className="bg-gray-50 rounded-xl p-5 border-l-4 border-blue-500">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="text-xl font-bold text-gray-800">
+                        {match.investor_name || match.partner_name || match.name || `Match ${index + 1}`}
+                      </h3>
+                      {(match.match_score || match.matchScore || match.score) && (
+                        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                          {match.match_score || match.matchScore || match.score}% Match
+                        </span>
+                      )}
+                    </div>
+                    {match.type && (
+                      <span className="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs mb-2">
+                        {typeof match.type === "object" ? JSON.stringify(match.type) : match.type}
+                      </span>
+                    )}
+                    {match.sectors && (
+                      <p className="text-sm text-gray-600 mb-2">
+                        <strong>Focus Areas:</strong>{" "}
+                        {Array.isArray(match.sectors) ? match.sectors.join(", ") : 
+                          (typeof match.sectors === "object" ? JSON.stringify(match.sectors) : match.sectors)}
+                      </p>
+                    )}
+                    {(match.reason || match.match_reason || match.why) && (
+                      <div className="mt-3 bg-white p-3 rounded-lg">
+                        <p className="text-sm text-gray-700">
+                          <strong className="text-blue-700">Why this match:</strong>{" "}
+                          {typeof (match.reason || match.match_reason || match.why) === "object" 
+                            ? JSON.stringify(match.reason || match.match_reason || match.why) 
+                            : (match.reason || match.match_reason || match.why)}
+                        </p>
+                      </div>
+                    )}
+                    {(match.recommendation || match.next_steps) && (
+                      <div className="mt-3 bg-green-50 p-3 rounded-lg">
+                        <p className="text-sm text-green-800">
+                          <strong>Next Steps:</strong>{" "}
+                          {typeof (match.recommendation || match.next_steps) === "object" 
+                            ? JSON.stringify(match.recommendation || match.next_steps) 
+                            : (match.recommendation || match.next_steps)}
+                        </p>
+                      </div>
+                    )}
+                    {/* Render any additional fields */}
+                    {Object.entries(match).filter(([key]) => 
+                      !["investor_name", "partner_name", "name", "match_score", "matchScore", "score", 
+                        "type", "sectors", "reason", "match_reason", "why", "recommendation", "next_steps"].includes(key)
+                    ).map(([key, value]) => (
+                      <div key={key} className="mt-2 text-sm text-gray-600">
+                        <strong className="capitalize">{key.replace(/_/g, " ")}:</strong>{" "}
+                        {typeof value === "object" ? JSON.stringify(value) : String(value)}
+                      </div>
+                    ))}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p className="text-4xl mb-3">🔍</p>
+                  <p>No matches found. Try completing your startup profile with more details.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 bg-white border-t p-4 rounded-b-2xl">
+              <button
+                onClick={() => setShowAiMatchModal(false)}
+                className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Coach Results Modal */}
+      {showAiCoachModal && aiCoachResult && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-6 rounded-t-2xl">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <span>💡</span> AI Startup Coach
+                  </h2>
+                  <p className="text-yellow-100 mt-1">Strategic analysis and actionable advice for your startup</p>
+                </div>
+                <button
+                  onClick={() => setShowAiCoachModal(false)}
+                  className="text-white/80 hover:text-white text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Startup Analysis - Handle nested object */}
+              {aiCoachResult.analysis && (
+                <div className="bg-blue-50 rounded-xl p-5">
+                  <h3 className="text-lg font-bold text-blue-800 mb-3 flex items-center gap-2">
+                    <span>📊</span> Startup Analysis
+                  </h3>
+                  {typeof aiCoachResult.analysis === "object" ? (
+                    <div className="space-y-4">
+                      {Object.entries(aiCoachResult.analysis).map(([key, value]) => (
+                        <div key={key} className="bg-white p-3 rounded-lg">
+                          <h4 className="font-semibold text-blue-700 capitalize mb-1">
+                            {key.replace(/_/g, " ")}
+                          </h4>
+                          <p className="text-gray-700 text-sm whitespace-pre-line">
+                            {typeof value === "object" ? JSON.stringify(value, null, 2) : value}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-700 whitespace-pre-line">{aiCoachResult.analysis}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Actionable Advice - Handle nested object */}
+              {aiCoachResult.actionable_advice && (
+                <div className="bg-green-50 rounded-xl p-5">
+                  <h3 className="text-lg font-bold text-green-800 mb-3 flex items-center gap-2">
+                    <span>🎯</span> Actionable Advice
+                  </h3>
+                  {Array.isArray(aiCoachResult.actionable_advice) ? (
+                    <ul className="space-y-2">
+                      {aiCoachResult.actionable_advice.map((advice, i) => (
+                        <li key={i} className="flex items-start gap-2 text-gray-700">
+                          <span className="text-green-600 mt-1">✓</span>
+                          <span>{typeof advice === "object" ? JSON.stringify(advice) : advice}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : typeof aiCoachResult.actionable_advice === "object" ? (
+                    <div className="space-y-4">
+                      {Object.entries(aiCoachResult.actionable_advice).map(([key, value]) => (
+                        <div key={key} className="bg-white p-3 rounded-lg">
+                          <h4 className="font-semibold text-green-700 capitalize mb-1">
+                            {key.replace(/_/g, " ")}
+                          </h4>
+                          {Array.isArray(value) ? (
+                            <ul className="space-y-1">
+                              {value.map((item, idx) => (
+                                <li key={idx} className="text-gray-700 text-sm flex items-start gap-2">
+                                  <span className="text-green-600">•</span>
+                                  <span>{typeof item === "object" ? JSON.stringify(item) : item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-gray-700 text-sm whitespace-pre-line">
+                              {typeof value === "object" ? JSON.stringify(value, null, 2) : value}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-700 whitespace-pre-line">{aiCoachResult.actionable_advice}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Coach Verdict - Handle nested object */}
+              {aiCoachResult.coach_verdict && (
+                <div className="bg-purple-50 rounded-xl p-5">
+                  <h3 className="text-lg font-bold text-purple-800 mb-3 flex items-center gap-2">
+                    <span>🏆</span> Coach Verdict
+                  </h3>
+                  {typeof aiCoachResult.coach_verdict === "object" ? (
+                    <div className="space-y-4">
+                      {Object.entries(aiCoachResult.coach_verdict).map(([key, value]) => (
+                        <div key={key} className="bg-white p-3 rounded-lg">
+                          <h4 className="font-semibold text-purple-700 capitalize mb-1">
+                            {key.replace(/_/g, " ")}
+                          </h4>
+                          <p className="text-gray-700 text-sm whitespace-pre-line">
+                            {typeof value === "object" ? JSON.stringify(value, null, 2) : value}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-700 whitespace-pre-line">{aiCoachResult.coach_verdict}</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 bg-white border-t p-4 rounded-b-2xl">
+              <button
+                onClick={() => setShowAiCoachModal(false)}
+                className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
