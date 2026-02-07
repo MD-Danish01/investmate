@@ -44,23 +44,53 @@ export async function POST(request) {
 
     // Call external AI API
     const aiApiUrl = process.env.INVESTMATE_AI_API_URL;
-    if (!aiApiUrl) {
-      return NextResponse.json({ error: "AI service not configured" }, { status: 500 });
+    
+    let parsed = null;
+    
+    if (aiApiUrl) {
+      try {
+        const response = await fetch(`${aiApiUrl}/startup-coach`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ startupData: startup }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          parsed = parseAIResponse(data);
+        } else {
+          console.log("AI Coach API returned error:", response.status);
+        }
+      } catch (aiError) {
+        console.log("AI Coach API call failed:", aiError.message);
+      }
     }
-
-    const response = await fetch(`${aiApiUrl}/startup-coach`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ startupData: startup }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: "AI service error" }));
-      return NextResponse.json(error, { status: response.status });
+    
+    // If AI call failed, provide default coaching tips
+    if (!parsed) {
+      const industry = startup.industry || "technology";
+      const stage = startup.stage || "early-stage";
+      const fundingNeeded = startup.fundingNeeded || "seed funding";
+      
+      parsed = {
+        analysis: {
+          profile_summary: `Welcome back, ${startup.founderName || startup.startupName || "Founder"}! Your ${stage} ${industry} startup is on an exciting journey.`,
+          market_position: `As a ${stage} company in ${industry}, you're entering a dynamic and growing market with significant opportunities.`,
+          funding_readiness: `You're seeking ${fundingNeeded}. Focus on demonstrating clear traction and unit economics to attract the right investors.`
+        },
+        actionable_advice: [
+          `For ${stage} startups in ${industry}, focus on demonstrating clear problem-solution fit and early traction metrics in your pitch deck.`,
+          `When seeking ${fundingNeeded}, prioritize investors with portfolio companies in ${industry} who understand your market dynamics.`,
+          "Track and highlight key metrics like user growth, engagement rates, and unit economics to build investor confidence.",
+          "Leverage warm introductions through your network. Investors are 4x more likely to respond to referred founders."
+        ],
+        coach_verdict: {
+          next_steps: "Refine your pitch deck with clear problem-solution narrative and identify 10 target investors this week.",
+          focus_area: "Prepare your data room with financials and metrics while practicing your pitch.",
+          overall: `Focus on building strong traction in ${industry} while preparing compelling materials for your ${fundingNeeded} round.`
+        }
+      };
     }
-
-    const data = await response.json();
-    const parsed = parseAIResponse(data);
 
     return NextResponse.json({
       success: true,

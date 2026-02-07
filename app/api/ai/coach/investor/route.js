@@ -72,24 +72,22 @@ export async function POST(request) {
       const ticketSize = investor.ticketSize || "₹10L - ₹50L";
       
       parsed = {
-        greeting: `Welcome back, ${investor.fullName || "Investor"}!`,
-        tips: [
-          {
-            title: "Portfolio Diversification",
-            content: `Consider diversifying across ${sectors} subsectors to reduce risk while maintaining exposure to high-growth opportunities.`
-          },
-          {
-            title: "Due Diligence Focus",
-            content: `For your ${ticketSize} ticket size, prioritize startups with clear unit economics and a path to profitability within 18-24 months.`
-          },
-          {
-            title: "Market Trends",
-            content: `The ${sectors} space is seeing increased activity. Look for startups solving genuine pain points with defensible technology.`
-          },
-          {
-            title: "Founder Assessment",
-            content: "Evaluate founder-market fit carefully. The best founders have deep domain expertise and relentless execution focus."
-          }
+        investor_analysis: {
+          profile_summary: `Welcome back, ${investor.fullName || "Investor"}! You're focused on ${sectors} with a typical investment range of ${ticketSize}.`,
+          investment_style: `Your portfolio targets ${sectors} startups, positioning you well for emerging opportunities in these high-growth sectors.`,
+          market_position: `With your focus on ${ticketSize} investments, you're well-positioned for seed to early-stage deals.`
+        },
+        strategic_recommendations: [
+          `Consider diversifying across ${sectors} subsectors to reduce risk while maintaining exposure to high-growth opportunities.`,
+          `For your ${ticketSize} ticket size, prioritize startups with clear unit economics and a path to profitability within 18-24 months.`,
+          `The ${sectors} space is seeing increased activity. Look for startups solving genuine pain points with defensible technology.`,
+          "Evaluate founder-market fit carefully. The best founders have deep domain expertise and relentless execution focus."
+        ],
+        actionable_roadmap: [
+          "Review your current portfolio allocation across sectors",
+          "Set up deal flow meetings with 3-5 new startups this month",
+          "Conduct deep-dive due diligence on your top prospects",
+          "Build relationships with co-investors for larger rounds"
         ],
         summary: `Based on your focus on ${sectors}, we recommend actively engaging with early-stage startups that demonstrate strong product-market fit signals.`
       };
