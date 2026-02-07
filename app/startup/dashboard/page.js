@@ -915,81 +915,99 @@ export default function StartupDashboard() {
 
       {/* AI Match Results Modal */}
       {showAiMatchModal && aiMatches && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAiMatchModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            {/* Fixed Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl flex-shrink-0">
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span>🔍</span> AI-Matched Investors & Partners
                   </h2>
-                  <p className="text-blue-100 mt-1">Personalized recommendations based on your startup profile</p>
+                  <p className="text-blue-100 mt-1">Click on a match to learn more</p>
                 </div>
                 <button
                   onClick={() => setShowAiMatchModal(false)}
-                  className="text-white/80 hover:text-white text-2xl"
+                  className="text-white/80 hover:text-white text-2xl p-2"
                 >
                   ✕
                 </button>
               </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {Array.isArray(aiMatches) && aiMatches.length > 0 ? (
                 aiMatches.map((match, index) => (
-                  <div key={index} className="bg-gray-50 rounded-xl p-5 border-l-4 border-blue-500">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-bold text-gray-800">
-                        {match.investor_name || match.partner_name || match.name || `Match ${index + 1}`}
-                      </h3>
-                      {(match.match_score || match.matchScore || match.score) && (
-                        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                          {match.match_score || match.matchScore || match.score}% Match
-                        </span>
-                      )}
+                  <div 
+                    key={index} 
+                    className="bg-white rounded-xl shadow-md border-2 border-blue-200 overflow-hidden hover:border-blue-400 hover:shadow-lg transition-all"
+                  >
+                    <div className="flex gap-4 p-4">
+                      {/* Profile Picture */}
+                      <div className="relative w-16 h-16 flex-shrink-0">
+                        <Image
+                          src={match.profilePicture && match.profilePicture !== "/default-avatar.png" ? match.profilePicture : "/default-avatar.png"}
+                          alt={match.name || "Partner"}
+                          fill
+                          unoptimized
+                          className="rounded-full object-cover border-2 border-blue-100 bg-gray-100"
+                        />
+                      </div>
+                      
+                      {/* Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-bold text-gray-800">{match.name || `Partner ${index + 1}`}</h3>
+                            {match.tagline && <p className="text-sm text-gray-500 italic line-clamp-1">{match.tagline}</p>}
+                            {match.firm && <p className="text-sm text-gray-500">{match.firm}</p>}
+                          </div>
+                          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                            <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">
+                              #{match.matchIndex || index + 1}
+                            </span>
+                            {match.type && (
+                              <span className={`px-2 py-0.5 rounded text-xs font-medium capitalize ${
+                                match.type === "investor" 
+                                  ? "bg-green-100 text-green-700" 
+                                  : "bg-purple-100 text-purple-700"
+                              }`}>
+                                {match.type}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Meta info */}
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {match.industry && (
+                            <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium">{match.industry}</span>
+                          )}
+                          {match.stage && (
+                            <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-medium">{match.stage}</span>
+                          )}
+                          {match.sectors && (
+                            <span className="text-gray-500 text-xs">
+                              {Array.isArray(match.sectors) ? match.sectors.join(", ") : match.sectors}
+                            </span>
+                          )}
+                          {match.location && (
+                            <span className="text-gray-500 text-xs flex items-center gap-1">📍 {match.location}</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    {match.type && (
-                      <span className="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs mb-2">
-                        {typeof match.type === "object" ? JSON.stringify(match.type) : match.type}
-                      </span>
-                    )}
-                    {match.sectors && (
-                      <p className="text-sm text-gray-600 mb-2">
-                        <strong>Focus Areas:</strong>{" "}
-                        {Array.isArray(match.sectors) ? match.sectors.join(", ") : 
-                          (typeof match.sectors === "object" ? JSON.stringify(match.sectors) : match.sectors)}
-                      </p>
-                    )}
-                    {(match.reason || match.match_reason || match.why) && (
-                      <div className="mt-3 bg-white p-3 rounded-lg">
-                        <p className="text-sm text-gray-700">
-                          <strong className="text-blue-700">Why this match:</strong>{" "}
-                          {typeof (match.reason || match.match_reason || match.why) === "object" 
-                            ? JSON.stringify(match.reason || match.match_reason || match.why) 
-                            : (match.reason || match.match_reason || match.why)}
+                    
+                    {/* AI Reason */}
+                    {match.aiReason && (
+                      <div className="bg-blue-50 p-4 border-t border-blue-100">
+                        <p className="text-sm text-blue-800">
+                          <strong className="text-blue-900">🤖 Why this match:</strong>{" "}
+                          {match.aiReason}
                         </p>
                       </div>
                     )}
-                    {(match.recommendation || match.next_steps) && (
-                      <div className="mt-3 bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm text-green-800">
-                          <strong>Next Steps:</strong>{" "}
-                          {typeof (match.recommendation || match.next_steps) === "object" 
-                            ? JSON.stringify(match.recommendation || match.next_steps) 
-                            : (match.recommendation || match.next_steps)}
-                        </p>
-                      </div>
-                    )}
-                    {/* Render any additional fields */}
-                    {Object.entries(match).filter(([key]) => 
-                      !["investor_name", "partner_name", "name", "match_score", "matchScore", "score", 
-                        "type", "sectors", "reason", "match_reason", "why", "recommendation", "next_steps"].includes(key)
-                    ).map(([key, value]) => (
-                      <div key={key} className="mt-2 text-sm text-gray-600">
-                        <strong className="capitalize">{key.replace(/_/g, " ")}:</strong>{" "}
-                        {typeof value === "object" ? JSON.stringify(value) : String(value)}
-                      </div>
-                    ))}
                   </div>
                 ))
               ) : (
@@ -1000,7 +1018,8 @@ export default function StartupDashboard() {
               )}
             </div>
 
-            <div className="sticky bottom-0 bg-white border-t p-4 rounded-b-2xl">
+            {/* Fixed Footer */}
+            <div className="bg-white border-t p-4 rounded-b-2xl flex-shrink-0">
               <button
                 onClick={() => setShowAiMatchModal(false)}
                 className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
@@ -1014,9 +1033,10 @@ export default function StartupDashboard() {
 
       {/* AI Coach Results Modal */}
       {showAiCoachModal && aiCoachResult && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-6 rounded-t-2xl">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAiCoachModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            {/* Fixed Header */}
+            <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-6 rounded-t-2xl flex-shrink-0">
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -1026,14 +1046,15 @@ export default function StartupDashboard() {
                 </div>
                 <button
                   onClick={() => setShowAiCoachModal(false)}
-                  className="text-white/80 hover:text-white text-2xl"
+                  className="text-white/80 hover:text-white text-2xl p-2"
                 >
                   ✕
                 </button>
               </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Startup Analysis - Handle nested object */}
               {aiCoachResult.analysis && (
                 <div className="bg-blue-50 rounded-xl p-5">
@@ -1130,7 +1151,8 @@ export default function StartupDashboard() {
               )}
             </div>
 
-            <div className="sticky bottom-0 bg-white border-t p-4 rounded-b-2xl">
+            {/* Fixed Footer */}
+            <div className="bg-white border-t p-4 rounded-b-2xl flex-shrink-0">
               <button
                 onClick={() => setShowAiCoachModal(false)}
                 className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
