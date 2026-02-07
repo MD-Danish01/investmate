@@ -23,6 +23,7 @@ export default function StartupDashboard() {
   const [aiCoachResult, setAiCoachResult] = useState(null);
   const [showAiMatchModal, setShowAiMatchModal] = useState(false);
   const [showAiCoachModal, setShowAiCoachModal] = useState(false);
+  const [showAiMenu, setShowAiMenu] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -306,50 +307,6 @@ export default function StartupDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* AI Features Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-2xl shadow-lg mb-8 text-white">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <span className="text-3xl">🤖</span> AI-Powered Features
-              </h2>
-              <p className="text-blue-100 mt-1">Let AI help you find investors and get strategic advice for your startup</p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleAiMatching}
-                disabled={aiMatching}
-                className="px-6 py-3 bg-white text-blue-700 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg disabled:opacity-50 flex items-center gap-2"
-              >
-                {aiMatching ? (
-                  <>
-                    <span className="animate-spin">⏳</span> Finding Investors...
-                  </>
-                ) : (
-                  <>
-                    <span>🔍</span> Find Investors
-                  </>
-                )}
-              </button>
-              <button
-                onClick={handleAiCoaching}
-                disabled={aiCoaching}
-                className="px-6 py-3 bg-yellow-400 text-yellow-900 rounded-xl font-semibold hover:bg-yellow-300 transition-all shadow-lg disabled:opacity-50 flex items-center gap-2"
-              >
-                {aiCoaching ? (
-                  <>
-                    <span className="animate-spin">⏳</span> Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <span>💡</span> AI Coach
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Profile Incomplete Warning */}
         {isProfileIncomplete && !editMode && (
           <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg mb-6">
@@ -1162,6 +1119,90 @@ export default function StartupDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Floating AI Chatbot Button */}
+      <div className="fixed bottom-6 right-6 z-40">
+        {/* AI Menu Popup */}
+        {showAiMenu && (
+          <div className="absolute bottom-20 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-5 duration-200">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-white">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🤖</span>
+                <div>
+                  <h3 className="font-bold">AI Assistant</h3>
+                  <p className="text-xs text-blue-100">Find investors & get startup advice</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Options */}
+            <div className="p-3 space-y-2">
+              <button
+                onClick={() => {
+                  setShowAiMenu(false);
+                  handleAiMatching();
+                }}
+                disabled={aiMatching}
+                className="w-full p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all flex items-center gap-3 text-left disabled:opacity-50"
+              >
+                <span className="text-2xl">🔍</span>
+                <div>
+                  <p className="font-semibold text-blue-800">Find Investors</p>
+                  <p className="text-xs text-gray-500">AI will match you with suitable investors</p>
+                </div>
+                {aiMatching && <span className="ml-auto animate-spin">⏳</span>}
+              </button>
+              
+              <button
+                onClick={() => {
+                  setShowAiMenu(false);
+                  handleAiCoaching();
+                }}
+                disabled={aiCoaching}
+                className="w-full p-4 bg-yellow-50 hover:bg-yellow-100 rounded-xl transition-all flex items-center gap-3 text-left disabled:opacity-50"
+              >
+                <span className="text-2xl">💡</span>
+                <div>
+                  <p className="font-semibold text-yellow-800">AI Coach</p>
+                  <p className="text-xs text-gray-500">Get strategic advice for your startup</p>
+                </div>
+                {aiCoaching && <span className="ml-auto animate-spin">⏳</span>}
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Main Floating Button */}
+        <button
+          onClick={() => setShowAiMenu(!showAiMenu)}
+          className={`w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+            showAiMenu 
+              ? "bg-gray-700 rotate-45" 
+              : "bg-white border-2 border-blue-200"
+          }`}
+        >
+          {showAiMenu ? (
+            <span className="text-white text-3xl">+</span>
+          ) : (
+            <Image
+              src="/ai-bot.png"
+              alt="AI Assistant"
+              width={40}
+              height={40}
+              className="object-contain"
+            />
+          )}
+        </button>
+      </div>
+
+      {/* Click outside to close AI menu */}
+      {showAiMenu && (
+        <div 
+          className="fixed inset-0 z-30" 
+          onClick={() => setShowAiMenu(false)}
+        />
       )}
     </div>
   );
