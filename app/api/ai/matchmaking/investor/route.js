@@ -45,26 +45,76 @@ export async function POST(request) {
 
     // Call external AI API
     const aiApiUrl = process.env.INVESTMATE_AI_API_URL;
-    if (!aiApiUrl) {
-      return NextResponse.json({ error: "AI service not configured" }, { status: 500 });
-    }
-
-    const response = await fetch(`${aiApiUrl}/matchmaking-investor`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ investorData: investor }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: "AI service error" }));
-      return NextResponse.json(error, { status: response.status });
-    }
-
-    const data = await response.json();
-    console.log("Raw AI response:", JSON.stringify(data, null, 2));
     
-    let parsed = parseAIResponse(data);
-    console.log("Parsed AI response:", JSON.stringify(parsed, null, 2));
+    let parsed = null;
+    let aiCallFailed = false;
+    
+    if (aiApiUrl) {
+      try {
+        const response = await fetch(`${aiApiUrl}/matchmaking-investor`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ investorData: investor }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Raw AI response:", JSON.stringify(data, null, 2));
+          parsed = parseAIResponse(data);
+          console.log("Parsed AI response:", JSON.stringify(parsed, null, 2));
+        } else {
+          console.log("AI API returned error status:", response.status);
+          aiCallFailed = true;
+        }
+      } catch (aiError) {
+        console.log("AI API call failed:", aiError.message);
+        aiCallFailed = true;
+      }
+    } else {
+      console.log("AI service not configured, using fallback");
+      aiCallFailed = true;
+    }
+    
+    // If AI call failed, fall back to database-based matching
+    if (aiCallFailed || !parsed) {
+      console.log("Using database fallback for investor matchmaking");
+      
+      let fallbackStartups = [];
+      
+      // Try matching by investor's preferred sectors
+      if (investor.preferredSectors && investor.preferredSectors.length > 0) {
+        fallbackStartups = await Startup.find({
+          industry: { $in: investor.preferredSectors }
+        }).limit(6).lean();
+      }
+      
+      // If no sector match, get random startups
+      if (fallbackStartups.length === 0) {
+        fallbackStartups = await Startup.find({}).limit(6).lean();
+      }
+      
+      return NextResponse.json({
+        success: true,
+        matches: fallbackStartups.map((startup, index) => ({
+          _id: startup._id.toString(),
+          userId: startup.userId?.toString(),
+          startupName: startup.startupName,
+          tagline: startup.tagline,
+          founderName: startup.founderName,
+          industry: startup.industry,
+          stage: startup.stage,
+          location: startup.location,
+          funding: startup.funding,
+          problem: startup.problem,
+          solution: startup.solution,
+          profilePicture: startup.profilePicture || "/default-avatar.png",
+          coverImage: startup.coverImage,
+          aiReason: `This ${startup.industry} startup matches your investment preferences in ${investor.preferredSectors?.join(", ") || "emerging sectors"}`,
+          matchIndex: index + 1,
+        })),
+        note: "Showing recommended matches based on your preferences",
+      });
+    }
 
     // Handle different response structures
     let aiMatches = [];

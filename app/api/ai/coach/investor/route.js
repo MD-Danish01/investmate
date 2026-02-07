@@ -44,23 +44,56 @@ export async function POST(request) {
 
     // Call external AI API
     const aiApiUrl = process.env.INVESTMATE_AI_API_URL;
-    if (!aiApiUrl) {
-      return NextResponse.json({ error: "AI service not configured" }, { status: 500 });
+    
+    let parsed = null;
+    
+    if (aiApiUrl) {
+      try {
+        const response = await fetch(`${aiApiUrl}/investor-coach`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ investorData: investor }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          parsed = parseAIResponse(data);
+        } else {
+          console.log("AI Coach API returned error:", response.status);
+        }
+      } catch (aiError) {
+        console.log("AI Coach API call failed:", aiError.message);
+      }
     }
-
-    const response = await fetch(`${aiApiUrl}/investor-coach`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ investorData: investor }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: "AI service error" }));
-      return NextResponse.json(error, { status: response.status });
+    
+    // If AI call failed, provide default coaching tips
+    if (!parsed) {
+      const sectors = investor.preferredSectors?.join(", ") || "technology";
+      const ticketSize = investor.ticketSize || "₹10L - ₹50L";
+      
+      parsed = {
+        greeting: `Welcome back, ${investor.fullName || "Investor"}!`,
+        tips: [
+          {
+            title: "Portfolio Diversification",
+            content: `Consider diversifying across ${sectors} subsectors to reduce risk while maintaining exposure to high-growth opportunities.`
+          },
+          {
+            title: "Due Diligence Focus",
+            content: `For your ${ticketSize} ticket size, prioritize startups with clear unit economics and a path to profitability within 18-24 months.`
+          },
+          {
+            title: "Market Trends",
+            content: `The ${sectors} space is seeing increased activity. Look for startups solving genuine pain points with defensible technology.`
+          },
+          {
+            title: "Founder Assessment",
+            content: "Evaluate founder-market fit carefully. The best founders have deep domain expertise and relentless execution focus."
+          }
+        ],
+        summary: `Based on your focus on ${sectors}, we recommend actively engaging with early-stage startups that demonstrate strong product-market fit signals.`
+      };
     }
-
-    const data = await response.json();
-    const parsed = parseAIResponse(data);
 
     return NextResponse.json({
       success: true,
