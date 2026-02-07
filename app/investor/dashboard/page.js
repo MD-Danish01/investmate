@@ -279,6 +279,7 @@ export default function InvestorDashboard() {
                   src={user?.profile?.profilePicture || "/default-avatar.png"}
                   alt={user?.profile?.fullName || "Investor"}
                   fill
+                  unoptimized
                   className="rounded-full object-cover border-2 border-green-200"
                 />
               </div>
@@ -311,6 +312,7 @@ export default function InvestorDashboard() {
                     src={user?.profile?.profilePicture || "/default-avatar.png"}
                     alt={user?.profile?.fullName || "Investor"}
                     fill
+                    unoptimized
                     className="rounded-full object-cover border-4 border-green-100 shadow-lg"
                   />
                   <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
@@ -518,14 +520,15 @@ export default function InvestorDashboard() {
             <p className="text-gray-500 col-span-full text-center py-8">No startups found</p>
           ) : (
             startups.map((startup) => (
-              <div key={startup._id} className="bg-white rounded-2xl shadow-lg border border-blue-100 hover:shadow-xl transition-shadow overflow-visible mt-10">
+              <div key={startup._id} className="bg-white rounded-2xl shadow-lg border border-blue-100 hover:shadow-xl transition-shadow overflow-visible mt-12">
                 {/* Cover Image */}
-                <div className="relative h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-t-2xl">
+                <div className="relative h-40 bg-gradient-to-r from-blue-500 to-purple-600 rounded-t-2xl">
                   {startup.coverImage && (
                     <Image
                       src={startup.coverImage}
                       alt="Cover"
                       fill
+                      unoptimized
                       className="object-cover rounded-t-2xl"
                     />
                   )}
@@ -549,6 +552,7 @@ export default function InvestorDashboard() {
                       src={startup.profilePicture || "/default-avatar.png"}
                       alt={startup.startupName}
                       fill
+                      unoptimized
                       className="rounded-full object-cover border-4 border-white shadow-lg"
                     />
                   </div>
@@ -653,6 +657,7 @@ export default function InvestorDashboard() {
                     src={selectedStartup.profilePicture || "/default-avatar.png"}
                     alt={selectedStartup.startupName}
                     fill
+                    unoptimized
                     className="rounded-full object-cover border-2 border-gray-200"
                   />
                 </div>
