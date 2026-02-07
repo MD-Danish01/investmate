@@ -9,12 +9,34 @@ export async function GET(request) {
   try {
     await dbConnect();
     
-    const token = request.cookies.get("token")?.value;
+    // Check for role query param to determine which cookie to use
+    const { searchParams } = new URL(request.url);
+    const requestedRole = searchParams.get("role");
+    
+    // Try role-specific cookie first, then fall back to generic token
+    let token = null;
+    if (requestedRole === "startup") {
+      token = request.cookies.get("startup_token")?.value;
+    } else if (requestedRole === "investor") {
+      token = request.cookies.get("investor_token")?.value;
+    } else {
+      // Try both (for backward compatibility)
+      token = request.cookies.get("startup_token")?.value || 
+              request.cookies.get("investor_token")?.value ||
+              request.cookies.get("token")?.value;
+    }
+    
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Verify role matches if requested
+    if (requestedRole && decoded.role !== requestedRole) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    
     const user = await User.findById(decoded.userId).select("-password").lean();
 
     if (!user) {

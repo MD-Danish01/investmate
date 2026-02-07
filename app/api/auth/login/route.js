@@ -28,7 +28,7 @@ export async function POST(request) {
       { expiresIn: "7d" }
     );
 
-    // Create response with cookie
+    // Create response with role-specific cookie
     const response = NextResponse.json({
       message: "Login successful",
       user: {
@@ -39,7 +39,9 @@ export async function POST(request) {
       },
     });
 
-    response.cookies.set("token", token, {
+    // Use role-specific cookie name so startup and investor can be logged in simultaneously
+    const cookieName = user.role === "startup" ? "startup_token" : "investor_token";
+    response.cookies.set(cookieName, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",

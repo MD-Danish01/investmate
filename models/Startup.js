@@ -8,6 +8,14 @@ const startupSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    profilePicture: {
+      type: String,
+      default: "/default-avatar.png",
+    },
+    coverImage: {
+      type: String,
+      default: "",
+    },
     startupName: {
       type: String,
       required: [true, "Startup name is required"],

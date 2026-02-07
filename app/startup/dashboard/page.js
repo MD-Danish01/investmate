@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function StartupDashboard() {
   const router = useRouter();
@@ -13,6 +14,8 @@ export default function StartupDashboard() {
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({});
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -50,7 +53,7 @@ export default function StartupDashboard() {
 
   const fetchUserData = async () => {
     try {
-      const res = await fetch("/api/auth/me");
+      const res = await fetch("/api/auth/me?role=startup");
       if (!res.ok) {
         router.push("/startup/login");
         return;
@@ -95,13 +98,95 @@ export default function StartupDashboard() {
   };
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch("/api/auth/logout?role=startup", { method: "POST" });
     router.push("/");
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Invalid file type. Only JPEG, PNG, and WebP are allowed.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      alert("File size exceeds 2MB limit.");
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("role", "startup");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setProfile((prev) => ({ ...prev, profilePicture: data.imageUrl }));
+        alert("Profile picture updated!");
+      } else {
+        const data = await res.json();
+        alert(data.error);
+      }
+    } catch (error) {
+      alert("Error uploading image");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleCoverImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Invalid file type. Only JPEG, PNG, and WebP are allowed.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size exceeds 5MB limit.");
+      return;
+    }
+
+    setUploadingCover(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "cover");
+      formData.append("role", "startup");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setProfile((prev) => ({ ...prev, coverImage: data.imageUrl }));
+        alert("Cover image updated!");
+      } else {
+        const data = await res.json();
+        alert(data.error);
+      }
+    } catch (error) {
+      alert("Error uploading cover image");
+    } finally {
+      setUploadingCover(false);
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -452,48 +537,160 @@ export default function StartupDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Startup Profile Card */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Your Startup</h2>
+          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+            {/* Cover Image */}
+            <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600 group">
+              {profile?.coverImage ? (
+                <Image
+                  src={profile.coverImage}
+                  alt="Cover"
+                  fill
+                  className="object-cover"
+                />
+              ) : null}
+              <label className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <div className="text-white text-center">
+                  <Image
+                    src="/upload-icon.jpg"
+                    alt="Upload"
+                    width={28}
+                    height={28}
+                    className="mx-auto mb-1 opacity-90"
+                  />
+                  <span className="text-xs">{uploadingCover ? "Uploading..." : "Change Cover"}</span>
+                </div>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleCoverImageUpload}
+                  className="hidden"
+                  disabled={uploadingCover}
+                />
+              </label>
+              {/* Edit Button */}
               {!editMode && (
                 <button
                   onClick={() => setEditMode(true)}
-                  className="text-blue-600 hover:text-blue-800 text-sm"
+                  className="absolute top-3 right-3 px-3 py-1 bg-white/90 text-blue-700 rounded-full text-sm hover:bg-white transition-colors shadow"
                 >
                   ✏️ Edit
                 </button>
               )}
             </div>
-            <div className="space-y-3">
-              <h3 className="text-2xl font-bold text-blue-600">{profile?.startupName}</h3>
-              <p className="text-gray-600 italic">{profile?.tagline}</p>
-              <div className="border-t pt-3 space-y-2 text-sm">
-                <p><strong>Founder:</strong> {profile?.founderName}</p>
-                <p><strong>Stage:</strong> {profile?.stage || <span className="text-orange-500">Not set</span>}</p>
-                <p><strong>Industry:</strong> {profile?.industry || <span className="text-orange-500">Not set</span>}</p>
-                <p><strong>Location:</strong> {profile?.location || <span className="text-orange-500">Not set</span>}</p>
-                <p><strong>Phone:</strong> {profile?.phone || <span className="text-orange-500">Not set</span>}</p>
-                <p><strong>Website:</strong> {profile?.website || <span className="text-orange-500">Not set</span>}</p>
-                <p><strong>Team Size:</strong> {profile?.teamSize || <span className="text-orange-500">Not set</span>}</p>
-                <p><strong>Funding Goal:</strong> {profile?.funding || <span className="text-orange-500">Not set</span>}</p>
+
+            {/* Profile Picture - Overlapping */}
+            <div className="relative flex justify-center -mt-14">
+              <div className="relative w-28 h-28 group">
+                <Image
+                  src={profile?.profilePicture || "/default-avatar.png"}
+                  alt={profile?.startupName || "Startup"}
+                  fill
+                  className="rounded-full object-cover border-4 border-white shadow-lg"
+                />
+                <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <Image
+                    src="/upload-icon.jpg"
+                    alt="Upload"
+                    width={32}
+                    height={32}
+                    className="opacity-90"
+                  />
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={uploadingImage}
+                  />
+                </label>
               </div>
+            </div>
+
+            <div className="px-6 pb-6 pt-2">
+              <div className="text-center mb-4">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{profile?.startupName}</h3>
+                <p className="text-gray-500 italic text-sm mt-1">{profile?.tagline}</p>
+                <span className="text-xs text-gray-400">{uploadingImage ? "Uploading photo..." : ""}</span>
+              </div>
+
+              <div className="space-y-3 bg-gray-50 rounded-xl p-4">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">👤</span>
+                    <div>
+                      <p className="text-gray-400 text-xs">Founder</p>
+                      <p className="font-medium text-gray-700">{profile?.founderName || <span className="text-orange-400">Not set</span>}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🚀</span>
+                    <div>
+                      <p className="text-gray-400 text-xs">Stage</p>
+                      <p className="font-medium text-gray-700">{profile?.stage || <span className="text-orange-400">Not set</span>}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🏭</span>
+                    <div>
+                      <p className="text-gray-400 text-xs">Industry</p>
+                      <p className="font-medium text-gray-700">{profile?.industry || <span className="text-orange-400">Not set</span>}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">📍</span>
+                    <div>
+                      <p className="text-gray-400 text-xs">Location</p>
+                      <p className="font-medium text-gray-700">{profile?.location || <span className="text-orange-400">Not set</span>}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">📞</span>
+                    <div>
+                      <p className="text-gray-400 text-xs">Phone</p>
+                      <p className="font-medium text-gray-700">{profile?.phone || <span className="text-orange-400">Not set</span>}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🌐</span>
+                    <div>
+                      <p className="text-gray-400 text-xs">Website</p>
+                      <p className="font-medium text-gray-700 truncate">{profile?.website || <span className="text-orange-400">Not set</span>}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">👥</span>
+                    <div>
+                      <p className="text-gray-400 text-xs">Team Size</p>
+                      <p className="font-medium text-gray-700">{profile?.teamSize || <span className="text-orange-400">Not set</span>}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">💰</span>
+                    <div>
+                      <p className="text-gray-400 text-xs">Funding Goal</p>
+                      <p className="font-medium text-gray-700">{profile?.funding || <span className="text-orange-400">Not set</span>}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Social Links */}
-              <div className="border-t pt-3">
-                <p className="font-medium text-gray-700 mb-2">Social Links:</p>
-                <div className="flex gap-3">
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <p className="font-medium text-gray-700 mb-3 text-sm text-center">🔗 Social Links</p>
+                <div className="flex justify-center gap-4">
                   {profile?.socialLinks?.linkedin ? (
-                    <a href={profile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
-                      LinkedIn
+                    <a href={profile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors" title="LinkedIn">
+                      🔗
                     </a>
-                  ) : <span className="text-orange-500 text-sm">LinkedIn not set</span>}
+                  ) : <span className="p-2 bg-gray-100 rounded-full text-gray-400" title="LinkedIn not set">🔗</span>}
                   {profile?.socialLinks?.twitter ? (
-                    <a href={profile.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-600">
-                      Twitter
+                    <a href={profile.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors" title="Twitter">
+                      🐦
                     </a>
-                  ) : <span className="text-orange-500 text-sm">Twitter not set</span>}
+                  ) : <span className="p-2 bg-gray-100 rounded-full text-gray-400" title="Twitter not set">🐦</span>}
                   {profile?.socialLinks?.other && (
-                    <a href={profile.socialLinks.other} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-800">
-                      Other
+                    <a href={profile.socialLinks.other} target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors" title="Other">
+                      🌐
                     </a>
                   )}
                 </div>

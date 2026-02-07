@@ -9,7 +9,8 @@ export async function PATCH(request, { params }) {
   try {
     await dbConnect();
     
-    const token = request.cookies.get("token")?.value;
+    // Use role-specific cookie
+    const token = request.cookies.get("startup_token")?.value || request.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

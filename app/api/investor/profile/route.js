@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/db";
-import Startup from "@/models/Startup";
+import Investor from "@/models/Investor";
 
-// Update startup profile
+// Update investor profile
 export async function PATCH(request) {
   try {
     await dbConnect();
     
     // Use role-specific cookie
-    const token = request.cookies.get("startup_token")?.value || request.cookies.get("token")?.value;
+    const token = request.cookies.get("investor_token")?.value || request.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.role !== "startup") {
-      return NextResponse.json({ error: "Only startups can update profile" }, { status: 403 });
+    if (decoded.role !== "investor") {
+      return NextResponse.json({ error: "Only investors can update profile" }, { status: 403 });
     }
 
     const updates = await request.json();
@@ -25,17 +25,17 @@ export async function PATCH(request) {
     delete updates.userId;
     delete updates._id;
 
-    const startup = await Startup.findOneAndUpdate(
+    const investor = await Investor.findOneAndUpdate(
       { userId: decoded.userId },
       { $set: updates },
       { new: true, runValidators: true }
     );
 
-    if (!startup) {
-      return NextResponse.json({ error: "Startup not found" }, { status: 404 });
+    if (!investor) {
+      return NextResponse.json({ error: "Investor not found" }, { status: 404 });
     }
 
-    return NextResponse.json(startup);
+    return NextResponse.json(investor);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

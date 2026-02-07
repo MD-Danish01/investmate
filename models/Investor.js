@@ -8,6 +8,10 @@ const investorSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    profilePicture: {
+      type: String,
+      default: "/default-avatar.png",
+    },
     fullName: {
       type: String,
       required: [true, "Full name is required"],
