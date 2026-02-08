@@ -592,7 +592,7 @@ export default function StartupDashboard() {
           {/* Startup Profile Card */}
           <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
             {/* Cover Image */}
-            <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600 group">
+            <div className="relative h-32 bg-linear-to-r from-blue-500 to-purple-600 group">
               {profile?.coverImage ? (
                 <Image
                   src={profile.coverImage}
@@ -663,7 +663,7 @@ export default function StartupDashboard() {
 
             <div className="px-6 pb-6 pt-2">
               <div className="text-center mb-4">
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{profile?.startupName}</h3>
+                <h3 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{profile?.startupName}</h3>
                 <p className="text-gray-500 italic text-sm mt-1">{profile?.tagline}</p>
                 <span className="text-xs text-gray-400">{uploadingImage ? "Uploading photo..." : ""}</span>
               </div>
@@ -875,7 +875,7 @@ export default function StartupDashboard() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAiMatchModal(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             {/* Fixed Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl flex-shrink-0">
+            <div className="bg-linear-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl shrink-0">
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -902,7 +902,7 @@ export default function StartupDashboard() {
                   >
                     <div className="flex gap-4 p-4">
                       {/* Profile Picture */}
-                      <div className="relative w-16 h-16 flex-shrink-0">
+                      <div className="relative w-16 h-16 shrink-0">
                         <Image
                           src={match.profilePicture && match.profilePicture !== "/default-avatar.png" ? match.profilePicture : "/default-avatar.png"}
                           alt={match.name || "Partner"}
@@ -920,7 +920,7 @@ export default function StartupDashboard() {
                             {match.tagline && <p className="text-sm text-gray-500 italic line-clamp-1">{match.tagline}</p>}
                             {match.firm && <p className="text-sm text-gray-500">{match.firm}</p>}
                           </div>
-                          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          <div className="flex flex-col items-end gap-1 shrink-0">
                             <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">
                               #{match.matchIndex || index + 1}
                             </span>
@@ -976,7 +976,7 @@ export default function StartupDashboard() {
             </div>
 
             {/* Fixed Footer */}
-            <div className="bg-white border-t p-4 rounded-b-2xl flex-shrink-0">
+            <div className="bg-white border-t p-4 rounded-b-2xl shrink-0">
               <button
                 onClick={() => setShowAiMatchModal(false)}
                 className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
@@ -993,7 +993,7 @@ export default function StartupDashboard() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAiCoachModal(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             {/* Fixed Header */}
-            <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-6 rounded-t-2xl flex-shrink-0">
+            <div className="bg-linear-to-r from-yellow-500 to-orange-500 text-white p-6 rounded-t-2xl shrink-0">
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -1109,7 +1109,7 @@ export default function StartupDashboard() {
             </div>
 
             {/* Fixed Footer */}
-            <div className="bg-white border-t p-4 rounded-b-2xl flex-shrink-0">
+            <div className="bg-white border-t p-4 rounded-b-2xl shrink-0">
               <button
                 onClick={() => setShowAiCoachModal(false)}
                 className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
@@ -1127,7 +1127,7 @@ export default function StartupDashboard() {
         {showAiMenu && (
           <div className="absolute bottom-20 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-5 duration-200">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-white">
+            <div className="bg-linear-to-r from-blue-600 to-purple-600 p-4 text-white">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🤖</span>
                 <div>
