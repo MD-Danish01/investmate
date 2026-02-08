@@ -594,7 +594,7 @@ export default function InvestorDashboard() {
             startups.map((startup) => (
               <div key={startup._id} className="bg-white rounded-2xl shadow-lg border border-blue-100 hover:shadow-xl transition-shadow overflow-visible mt-12">
                 {/* Cover Image */}
-                <div className="relative h-40 bg-gradient-to-r from-blue-500 to-purple-600 rounded-t-2xl">
+                <div className="relative h-40 bg-linear-to-r from-blue-500 to-purple-600 rounded-t-2xl">
                   {startup.coverImage && (
                     <Image
                       src={startup.coverImage}
@@ -679,7 +679,7 @@ export default function InvestorDashboard() {
                   ) : (
                     <button
                       onClick={() => expressInterest(startup._id)}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md"
+                      className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white py-2.5 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md"
                     >
                       Express Interest
                     </button>
@@ -718,13 +718,13 @@ export default function InvestorDashboard() {
 
       {/* Startup Detail Modal */}
       {selectedStartup && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-start">
               <div className="flex items-center gap-4">
                 {/* Startup Profile Picture in Modal */}
-                <div className="relative w-16 h-16 flex-shrink-0">
+                <div className="relative w-16 h-16 shrink-0">
                   <Image
                     src={selectedStartup.profilePicture || "/default-avatar.png"}
                     alt={selectedStartup.startupName}
@@ -927,7 +927,7 @@ export default function InvestorDashboard() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAiMatchModal(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             {/* Fixed Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-t-2xl flex-shrink-0">
+            <div className="bg-linear-to-r from-purple-600 to-blue-600 text-white p-6 rounded-t-2xl shrink-0">
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -974,7 +974,7 @@ export default function InvestorDashboard() {
                   >
                     <div className="flex gap-4 p-4">
                       {/* Profile Picture */}
-                      <div className="relative w-16 h-16 flex-shrink-0">
+                      <div className="relative w-16 h-16 shrink-0">
                         <Image
                           src={match.profilePicture && match.profilePicture !== "/default-avatar.png" ? match.profilePicture : "/default-avatar.png"}
                           alt={match.startupName || "Startup"}
@@ -992,7 +992,7 @@ export default function InvestorDashboard() {
                             {match.tagline && <p className="text-sm text-gray-500 italic line-clamp-1">{match.tagline}</p>}
                             {match.founderName && <p className="text-sm text-gray-600">by {match.founderName}</p>}
                           </div>
-                          <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold flex-shrink-0">
+                          <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold shrink-0">
                             #{match.matchIndex || index + 1}
                           </span>
                         </div>
@@ -1027,7 +1027,7 @@ export default function InvestorDashboard() {
                     
                     {/* Click hint */}
                     {match._id && (
-                      <div className="bg-gradient-to-r from-purple-100 to-blue-100 px-4 py-2 text-center text-xs text-purple-700 font-medium border-t">
+                      <div className="bg-linear-to-r from-purple-100 to-blue-100 px-4 py-2 text-center text-xs text-purple-700 font-medium border-t">
                         👆 Click to view full details & express interest
                       </div>
                     )}
@@ -1042,7 +1042,7 @@ export default function InvestorDashboard() {
             </div>
 
             {/* Fixed Footer */}
-            <div className="bg-white border-t p-4 rounded-b-2xl flex-shrink-0">
+            <div className="bg-white border-t p-4 rounded-b-2xl shrink-0">
               <button
                 onClick={() => setShowAiMatchModal(false)}
                 className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
@@ -1059,7 +1059,7 @@ export default function InvestorDashboard() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAiCoachModal(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             {/* Fixed Header */}
-            <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-6 rounded-t-2xl flex-shrink-0">
+            <div className="bg-linear-to-r from-yellow-500 to-orange-500 text-white p-6 rounded-t-2xl shrink-0">
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -1158,7 +1158,7 @@ export default function InvestorDashboard() {
                     <ol className="space-y-3">
                       {aiCoachResult.actionable_roadmap.map((step, i) => (
                         <li key={i} className="flex items-start gap-3 text-gray-700">
-                          <span className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm flex-shrink-0">
+                          <span className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm shrink-0">
                             {i + 1}
                           </span>
                           <span>{typeof step === "object" ? JSON.stringify(step) : step}</span>
@@ -1197,7 +1197,7 @@ export default function InvestorDashboard() {
             </div>
 
             {/* Fixed Footer */}
-            <div className="bg-white border-t p-4 rounded-b-2xl flex-shrink-0">
+            <div className="bg-white border-t p-4 rounded-b-2xl shrink-0">
               <button
                 onClick={() => setShowAiCoachModal(false)}
                 className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
@@ -1215,7 +1215,7 @@ export default function InvestorDashboard() {
         {showAiMenu && (
           <div className="absolute bottom-20 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-5 duration-200">
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 text-white">
+            <div className="bg-linear-to-r from-purple-600 to-blue-600 p-4 text-white">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🤖</span>
                 <div>
