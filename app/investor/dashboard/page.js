@@ -343,10 +343,10 @@ export default function InvestorDashboard() {
           <div className="flex items-center gap-4">
             {/* Investor Profile - Clickable */}
             <div 
-              className="flex items-center gap-3 bg-gray-50 px-3 py-2 rounded-full cursor-pointer hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-2 sm:gap-3 bg-gray-50 px-2 sm:px-3 py-2 rounded-full cursor-pointer hover:bg-gray-100 transition-colors"
               onClick={() => setShowProfilePanel(!showProfilePanel)}
             >
-              <div className="relative w-10 h-10">
+              <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                 <Image
                   src={user?.profile?.profilePicture || "/default-avatar.png"}
                   alt={user?.profile?.fullName || "Investor"}
@@ -355,7 +355,7 @@ export default function InvestorDashboard() {
                   className="rounded-full object-cover border-2 border-green-200"
                 />
               </div>
-              <div className="text-sm">
+              <div className="text-sm hidden sm:block">
                 <p className="text-gray-500 text-xs">Investor</p>
                 <p className="font-medium text-gray-700">{user?.profile?.fullName || user?.user?.name || "N/A"}</p>
               </div>
@@ -374,7 +374,7 @@ export default function InvestorDashboard() {
         {showProfilePanel && (
           <div 
             ref={profilePanelRef}
-            className="absolute right-4 top-full mt-2 w-96 bg-white rounded-2xl shadow-2xl border z-50 max-h-[80vh] overflow-y-auto"
+            className="absolute right-2 left-2 sm:left-auto sm:right-4 top-full mt-2 w-auto sm:w-96 bg-white rounded-2xl shadow-2xl border z-50 max-h-[80vh] overflow-y-auto"
           >
             <div className="p-6">
               {/* Profile Picture Section */}
